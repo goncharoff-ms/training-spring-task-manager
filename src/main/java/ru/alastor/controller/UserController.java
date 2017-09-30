@@ -1,15 +1,15 @@
 package ru.alastor.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.codehaus.jackson.annotate.JsonBackReference;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import ru.alastor.dao.UserDao;
-import ru.alastor.domain.Application;
 import ru.alastor.domain.User;
+import ru.alastor.security.auth.JwtAuthenticationToken;
+import ru.alastor.security.model.UserContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author Maxim Goncharov
  */
-@Controller
+@RestController
 public class UserController {
 
     private final UserDao userDao;
@@ -29,15 +29,19 @@ public class UserController {
         this.userDao = userDao;
     }
 
-    @ResponseBody
+    @RequestMapping(value="/me", method= RequestMethod.GET)
+    public @ResponseBody
+    UserContext get(JwtAuthenticationToken token) {
+        return (UserContext) token.getPrincipal();
+    }
+
     @RequestMapping(path = "/users")
-    public String allUsers() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public List<User> allUsers() throws JsonProcessingException {
         List<User> userList = new ArrayList<>();
         for (User user : userDao.findAll()) {
             userList.add(user);
         }
-        return objectMapper.writeValueAsString(userList);
+        return userList;
     }
 
 }

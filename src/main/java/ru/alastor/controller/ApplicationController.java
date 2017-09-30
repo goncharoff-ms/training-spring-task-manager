@@ -1,14 +1,13 @@
 package ru.alastor.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.alastor.dao.ApplicationDao;
 import ru.alastor.domain.Application;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 23.09.17.
@@ -16,7 +15,7 @@ import java.util.*;
  * @author Maxim Goncharov
  */
 
-@Controller
+@RestController
 @CrossOrigin
 public class ApplicationController {
 
@@ -26,22 +25,19 @@ public class ApplicationController {
     public ApplicationController(ApplicationDao applicationDao) {
         this.applicationDao = applicationDao;
     }
-    @ResponseBody
+
     @RequestMapping(path = "/applications", method = RequestMethod.GET)
-    public String getAll() throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
+    public List<Application> getAll() throws JsonProcessingException {
         List<Application> applicationsList = new ArrayList<>();
         for (Application application : applicationDao.findAll()) {
             applicationsList.add(application);
         }
-        return objectMapper.writeValueAsString(applicationsList);
+        return applicationsList;
     }
 
-    @ResponseBody
     @RequestMapping(path = "/application/{appId}", method = RequestMethod.GET)
-    public String getAppById(@PathVariable(name = "appId") Long appId) throws JsonProcessingException {
-        return new ObjectMapper().
-                writeValueAsString(applicationDao.findOne(appId));
+    public Application getAppById(@PathVariable(name = "appId") Long appId) throws JsonProcessingException {
+        return applicationDao.findOne(appId);
     }
 
 

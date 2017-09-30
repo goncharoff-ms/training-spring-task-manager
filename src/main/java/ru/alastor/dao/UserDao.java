@@ -11,4 +11,5 @@ import ru.alastor.domain.User;
  */
 @Repository
 public interface UserDao extends CrudRepository<User, Long> {
+    User getByLogin(final String login);
 }

@@ -1,10 +1,6 @@
 package ru.alastor.domain;
 
-import org.springframework.boot.autoconfigure.web.ResourceProperties;
-
-import javax.management.relation.Role;
 import javax.persistence.*;
-import java.util.Set;
 
 /**
  * Created on 18.09.17.
@@ -86,11 +82,4 @@ public class User {
         this.role = role;
     }
 
-   /* public RoleUser getRole() {
-        return role;
-    }
-
-    public void setRole(RoleUser role) {
-        this.role = role;
-    }*/
 }

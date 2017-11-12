@@ -1,16 +1,16 @@
 package ru.alastor.dao;
 
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.alastor.domain.User;
+import ru.alastor.domain.InviteToken;
 
 /**
- * Created on 18.09.17.
+ * Created on 03.11.17.
  *
  * @author Maxim Goncharov
  */
-
 @Repository
-public interface UserDao extends CrudRepository<User, Long> {
-    User findByLogin(final String login);
+public interface InviteTokenDao extends CrudRepository<InviteToken, Long> {
+    InviteToken findByToken(String token);
 }

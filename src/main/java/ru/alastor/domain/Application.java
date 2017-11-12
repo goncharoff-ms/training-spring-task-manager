@@ -1,10 +1,6 @@
 package ru.alastor.domain;
 
-import jdk.nashorn.internal.objects.annotations.Getter;
-
-import javax.annotation.sql.DataSourceDefinition;
 import javax.persistence.*;
-import java.sql.Timestamp;
 
 /**
  * Created on 18.09.17.
@@ -15,24 +11,27 @@ import java.sql.Timestamp;
 public class Application {
 
     public Application() {
-
     }
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "info")
     private String info;
 
+    @Column(name = "_order")
     private String order;
 
-
+    @Column(name = "user_id")
     private Long userId;
 
     @Column(name = "date_review")
-    private Timestamp dateReview;
+    private String dateReview;
 
     public Long getId() {
         return id;
@@ -66,11 +65,11 @@ public class Application {
         this.order = order;
     }
 
-    public Timestamp getDateReview() {
+    public String getDateReview() {
         return dateReview;
     }
 
-    public void setDateReview(Timestamp dateReview) {
+    public void setDateReview(String dateReview) {
         this.dateReview = dateReview;
     }
 
@@ -80,5 +79,44 @@ public class Application {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Application that = (Application) o;
+
+        if (!id.equals(that.id)) return false;
+        if (!name.equals(that.name)) return false;
+        if (!info.equals(that.info)) return false;
+        if (!order.equals(that.order)) return false;
+        if (!userId.equals(that.userId)) return false;
+        return dateReview.equals(that.dateReview);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + info.hashCode();
+        result = 31 * result + order.hashCode();
+        result = 31 * result + userId.hashCode();
+        result = 31 * result + dateReview.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Application{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", info='" + info + '\'' +
+                ", order='" + order + '\'' +
+                ", userId=" + userId +
+                ", dateReview='" + dateReview + '\'' +
+                '}';
     }
 }

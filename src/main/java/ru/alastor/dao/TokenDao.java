@@ -2,15 +2,14 @@ package ru.alastor.dao;
 
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import ru.alastor.domain.User;
+import ru.alastor.domain.Token;
 
 /**
- * Created on 18.09.17.
+ * Created on 23.10.17.
  *
  * @author Maxim Goncharov
  */
-
 @Repository
-public interface UserDao extends CrudRepository<User, Long> {
-    User findByLogin(final String login);
+public interface TokenDao extends CrudRepository<Token, Long> {
+    Token getTokenByOwnerId(Long id);
 }

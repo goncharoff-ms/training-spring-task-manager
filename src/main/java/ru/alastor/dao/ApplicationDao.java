@@ -4,6 +4,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.alastor.domain.Application;
 
+import java.util.List;
+
 /**
  * Created on 18.09.17.
  *
@@ -11,5 +13,5 @@ import ru.alastor.domain.Application;
  */
 @Repository
 public interface ApplicationDao extends PagingAndSortingRepository<Application, Long> {
-
+    List<Application> getApplicationByUserId(Long userId);
 }

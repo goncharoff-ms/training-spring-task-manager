@@ -50,11 +50,11 @@ public class AuthTokenService {
     }
 
 
-    public boolean checkAuthTokenByLogin(String userLogin, String token) {
+    public Token getExistAuthToken(String userLogin, String token) {
         Token trueToken =  tokenDao.getTokenByOwnerId(userDao.findByLogin(userLogin).getId());
-        if (new Date().getTime() > trueToken.getTimestamp().getTime()) {
-            return false;
+        if (new Date().getTime() > trueToken.getTimestamp().getTime() || !trueToken.getToken().equals(token)) {
+            return null;
         }
-        return trueToken.getToken().equals(token);
+        return trueToken;
     }
 }

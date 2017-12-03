@@ -19,7 +19,7 @@ import ru.alastor.service.AuthTokenService;
  * @author Maxim Goncharov
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class UserController {
 
 
@@ -40,14 +40,34 @@ public class UserController {
     }
 
 
-    @RequestMapping(path = "/users/{userLogin}", method = RequestMethod.GET)
-    public ResponseEntity userIm(@RequestParam("token") String tokenString,
-                                 @PathVariable(name = "userLogin") String userLogin) {
-        User user = userServiceDao.findByLogin(userLogin);
-        Token token = tokenDao.findOne(user.getId());
-        if (!token.getToken().equals(tokenString)) {
-            return new ResponseEntity<>("error token or login", HttpStatus.FORBIDDEN);
+    @RequestMapping(path = "/users/{userLogin}", method = RequestMethod.PUT)
+    public ResponseEntity getUser(@RequestParam("token") String tokenString,
+                                 @RequestParam("userLogin") String userLogin,
+                                  @PathVariable(name = "userLogin") String requestLogin,
+                                  @RequestParam("password") String password,
+                                  @RequestParam("email") String email,
+                                  @RequestParam("name") String name,
+                                  @RequestParam("about") String about,
+                                  @RequestParam("surname") String surname) {
+
+        Token token = authTokenService.getExistAuthToken(userLogin, tokenString);
+        if (token == null) {
+            return new ResponseEntity<>("Error login or token", HttpStatus.ACCEPTED);
         }
+        User user = token.getOwner();
+        if (!user.getLogin().equals(requestLogin)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+
+        user.setSurname(surname);
+        user.setName(name);
+        user.setEmail(email);
+        if(!bCryptPasswordEncoder.matches(password, user.getPassword())) {
+            user.setPassword(bCryptPasswordEncoder.encode(password));
+        }
+        user.setAboutUser(about);
+
+        userServiceDao.save(user);
 
         return new ResponseEntity<>(new UserResponse(
             user.getLogin(),
@@ -56,8 +76,33 @@ public class UserController {
             user.getSurname(),
             user.getAboutUser()
         ), HttpStatus.OK);
-
     }
+
+    @RequestMapping(path = "/users/{userLogin}", method = RequestMethod.GET)
+    public ResponseEntity getUser(@RequestParam("token") String tokenString,
+                                  @RequestParam("userLogin") String userLogin,
+                                  @PathVariable(name = "userLogin") String requestLogin) {
+        Token token = authTokenService.getExistAuthToken(userLogin, tokenString);
+        if (token == null) {
+            return new ResponseEntity<>("Error login or token", HttpStatus.ACCEPTED);
+        }
+
+        User user = userServiceDao.findByLogin(requestLogin);
+
+        if (!token.getOwner().equals(user)) {
+            return new ResponseEntity<>("Access denied", HttpStatus.ACCEPTED);
+        }
+
+        return new ResponseEntity<>(new UserResponse(
+                user.getLogin(),
+                user.getEmail(),
+                user.getName(),
+                user.getSurname(),
+                user.getAboutUser()
+        ), HttpStatus.OK);
+    }
+
+
 
     @RequestMapping(path = "/sign-up", method = RequestMethod.POST)
     public ResponseEntity signUp(@RequestParam("login") String login,
@@ -87,6 +132,7 @@ public class UserController {
 
         userServiceDao.save(newUser);
 
+        // TODO: 30.11.17 enable in future 
         //inviteTokenDao.delete(token);
 
         return new ResponseEntity<>(new ResponseToken(authTokenService.getAuthToken(newUser)),

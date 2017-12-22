@@ -13,5 +13,6 @@ import java.util.List;
  */
 @Repository
 public interface ApplicationDao extends PagingAndSortingRepository<Application, Long> {
-    List<Application> getApplicationByUserId(Long userId);
+    List<Application> getByUserId(Long userId);
+    List<Application> findByNameStartingWith(String username);
 }

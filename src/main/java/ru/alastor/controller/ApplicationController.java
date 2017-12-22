@@ -10,9 +10,8 @@ import ru.alastor.domain.*;
 import ru.alastor.domain.builder.ApplicationBuilder;
 import ru.alastor.service.AuthTokenService;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created on 23.09.17.
@@ -30,6 +29,7 @@ public class ApplicationController {
     private final AuthTokenService authTokenService;
     private final ApplicationSignDao applicationSignDao;
     private final RoleUserDao roleUserDao;
+    private final Map<String, Integer> mapSortingByOrder;
 
 
     @Autowired
@@ -40,12 +40,18 @@ public class ApplicationController {
         this.applicationHistoryDao = applicationHistoryDao;
         this.applicationSignDao = applicationSignDao;
         this.roleUserDao = roleUserDao;
-
+        mapSortingByOrder = new HashMap<>();
+        mapSortingByOrder.put("НИЗКИЙ", 1);
+        mapSortingByOrder.put("СРЕДНИЙ", 2);
+        mapSortingByOrder.put("ВЫСОКИЙ", 3);
     }
 
     @RequestMapping(path = "/applications", method = RequestMethod.GET)
     public ResponseEntity getAll(@RequestParam("token") String token,
-                                 @RequestParam("userLogin") String userLogin) {
+                                 @RequestParam("userLogin") String userLogin,
+                                 @RequestParam(name = "sortedByOrder", required = false) String solveSorted,
+                                 @RequestParam(name = "searchWord", required = false) String searchWord
+                                 ) {
 
         if (authTokenService.getExistAuthToken(userLogin, token) == null) {
             return new ResponseEntity<>("error token or login", HttpStatus.ACCEPTED);
@@ -55,6 +61,38 @@ public class ApplicationController {
         List<Application> resp = new ArrayList<>();
         for (ApplicationSign aps : applicationSigns) {
             resp.add(applicationDao.findOne(aps.getApplicationId()));
+        }
+
+
+        if(solveSorted != null && !solveSorted.equals("")) {
+            if (solveSorted.equals("UPDOWN")) {
+                resp.sort((a, b) -> {
+                    int aRating = mapSortingByOrder.get(a.getOrder());
+                    int bRating = mapSortingByOrder.get(b.getOrder());
+                    if (aRating > bRating)  {
+                        return 1;
+                    } else if (aRating < bRating) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                });
+            } else {
+                resp.sort((a, b) -> {
+                    int aRating = mapSortingByOrder.get(a.getOrder());
+                    int bRating = mapSortingByOrder.get(b.getOrder());
+                    if (aRating > bRating) {
+                        return -1;
+                    } else if (aRating < bRating) {
+                        return 1;
+                    }
+                    return 0;
+                });
+            }
+        }
+
+        if (searchWord != null && !searchWord.equals("")) {
+            resp = resp.stream().filter(a -> a.getName().contains(searchWord)).collect(Collectors.toList());
         }
 
         Collections.reverse(resp);
@@ -159,7 +197,6 @@ public class ApplicationController {
 
         return new ResponseEntity<>(application.toString(),HttpStatus.OK);
     }
-
 
 
 }
